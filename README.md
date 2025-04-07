@@ -4,8 +4,8 @@ This project is a web-based tool for generating Data Transfer Objects (DTOs) fro
 
 ## Features
 
-- **Supported Languages**: Java, C#, Kotlin.
-- **Case Styles**: `camelCase` and `snake_case`.
+- **Supported Languages**: Java, Typescript, C#, Kotlin.
+- **Case Styles**: `camelCase`,`snake_case`,`PascalCase`,`kebab-case`.
 - **Preview**: View the generated DTOs directly in the browser.
 - **Download**: Download the generated DTOs as a ZIP file.
 
@@ -30,8 +30,8 @@ This project is a web-based tool for generating Data Transfer Objects (DTOs) fro
 
 Usage
 Upload a JSON file or paste JSON data.
-Select the target programming language (Java, C#, Kotlin).
-Choose the desired case style (camelCase or snake_case).
+Select the target programming language (Java, Typescript, C#, Kotlin).
+Choose the desired case style (camelCase or snake_case or PascalCase or kebab-case).
 Click "Generate DTOs" to preview the generated code.
 Optionally, click "Download DTOs" to download the generated files as a ZIP.
 Example

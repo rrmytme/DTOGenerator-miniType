@@ -9,13 +9,17 @@ app = Flask(__name__)
 
 # Language extensions
 def get_extension(language):
-    return {"Java": "java", "C#": "cs", "Kotlin": "kt"}.get(language, "txt")
+    return {"Java": "java", "Typescript": "ts", "C#": "cs", "Kotlin": "kt"}.get(
+        language, "txt"
+    )
 
 
 # Generate code based on language
 def generate_code_for_language(class_name, content, language, case_style):
     if language == "Java":
         return generate_java_code(class_name, content, case_style)
+    elif language == "Typescript":
+        return generate_Typescript_code(class_name, content, case_style)
     elif language == "C#":
         return generate_csharp_code(class_name, content, case_style)
     elif language == "Kotlin":
@@ -28,10 +32,16 @@ def generate_code_for_language(class_name, content, language, case_style):
 def format_field(name, case_style):
     if case_style == "snake_case":
         return name.lower()
-    else:  # camelCase
+    elif case_style == "camelCase":
         return "".join(
             word.capitalize() if i else word for i, word in enumerate(name.split("_"))
         )
+    elif case_style == "PascalCase":
+        return "".join(word.capitalize() for word in name.split("_"))
+    elif case_style == "kebab-case":
+        return name.lower().replace("_", "-")
+    else:
+        raise ValueError("Unsupported case style")
 
 
 # Generate Java class
@@ -57,6 +67,22 @@ def generate_java_code(class_name, content, case_style):
 public class {class_name} {{
 {fields}
 {getters_setters}
+}}
+"""
+
+
+# Generate TypeScript class
+def generate_Typescript_code(class_name, content, case_style):
+    fields = ""
+    for key, _ in content.items():
+        field_name = format_field(key, case_style)
+        fields += f"    {field_name}: string;\n"
+    return f"""
+export class {class_name} {{
+{fields}
+    constructor({', '.join([f"{format_field(key, case_style)}: string" for key in content.keys()])}) {{
+        {', '.join([f'this.{format_field(key, case_style)} = {format_field(key, case_style)}' for key in content.keys()])}
+    }}
 }}
 """
 
