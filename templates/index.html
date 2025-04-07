@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON to DTO Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f5f7fa; }
+    .container { margin-top: 50px; }
+    .preview { white-space: pre; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4">🛠️ JSON to DTO Generator</h2>
+    
+    <div class="mb-3">
+      <label for="jsonFile" class="form-label">Upload JSON File:</label>
+      <input class="form-control" type="file" id="jsonFile">
+    </div>
+
+    <div class="mb-3">
+      <label for="language" class="form-label">Select Language:</label>
+      <select class="form-select" id="language">
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+        <option value="Kotlin">Kotlin</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="caseStyle" class="form-label">Select Case Style:</label>
+      <select class="form-select" id="caseStyle">
+        <option value="camelCase">camelCase</option>
+        <option value="snake_case">snake_case</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="generate()">Generate DTOs</button>
+    <button class="btn btn-success" onclick="download()">Download DTOs</button>
+
+    <hr>
+
+    <h4>Preview</h4>
+    <div id="preview" class="preview"></div>
+  </div>
+
+<script>
+let generatedFiles = {};
+
+function generate() {
+  const fileInput = document.getElementById('jsonFile');
+  const language = document.getElementById('language').value;
+  const caseStyle = document.getElementById('caseStyle').value;
+
+  if (fileInput.files.length === 0) {
+    alert("Please upload a JSON file!");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const content = event.target.result;
+    fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ json_data: content, language: language, case_style: caseStyle })
+    })
+    .then(response => response.json())
+    .then(data => {
+      generatedFiles = data;
+      let previewHtml = '';
+      for (let [filename, code] of Object.entries(data)) {
+        previewHtml += `<h6>${filename}</h6><pre>${code}</pre><hr>`;
+      }
+      document.getElementById('preview').innerHTML = previewHtml;
+    })
+    .catch(error => console.error('Error:', error));
+  };
+  reader.readAsText(file);
+}
+
+function download() {
+  fetch('/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: generatedFiles })
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(new Blob([blob]));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dtos.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  })
+  .catch(error => console.error('Error:', error));
+}
+</script>
+</body>
+</html>
